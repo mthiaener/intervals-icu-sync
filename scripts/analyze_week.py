@@ -1,4 +1,4 @@
-"""Analyze the latest week of cycling training data from data/raw/."""
+"""Analyze cycling training data from the last 7 days from data/raw/."""
 
 import json
 import os
@@ -86,15 +86,15 @@ def load_fueling(monday: date) -> dict:
     return json.loads(path.read_text())
 
 
-def _current_week_range() -> tuple[date, date]:
+def _last_7_days_range() -> tuple[date, date]:
     today = date.today()
-    monday = today - timedelta(days=today.weekday())
-    sunday = monday + timedelta(days=6)
-    return monday, sunday
+    end_date = today
+    start_date = end_date - timedelta(days=6)
+    return start_date, end_date
 
 
 def filter_activities(activities: list) -> list:
-    monday, sunday = _current_week_range()
+    start_date, end_date = _last_7_days_range()
     result = []
     for a in activities:
         if (
@@ -107,7 +107,7 @@ def filter_activities(activities: list) -> list:
                 activity_date = date.fromisoformat(start)
             except ValueError:
                 continue
-            if monday <= activity_date <= sunday:
+            if start_date <= activity_date <= end_date:
                 result.append(a)
     return result
 
@@ -418,10 +418,10 @@ def print_report(metrics: dict, athlete_metrics: dict | None = None, fueling_for
         if ff.get("long_ride_advice"):
             print(f"Long rides:      {ff['long_ride_advice']}")
 
-def save_json(metrics: dict, fueling_form: dict | None, monday: date, training_plan: list[dict] | None = None) -> None:
-    output_file = OUTPUT_DIR / f"week_summary_{monday.isoformat()}.json"
+def save_json(metrics: dict, fueling_form: dict | None, window_start: date, training_plan: list[dict] | None = None) -> None:
+    output_file = OUTPUT_DIR / f"week_summary_{window_start.isoformat()}.json"
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    payload = {"week_starting": monday.isoformat(), "current_date": date.today().isoformat(), **metrics}
+    payload = {"week_starting": window_start.isoformat(), "current_date": date.today().isoformat(), **metrics}
     if fueling_form:
         payload["fueling_form_analysis"] = fueling_form
     if training_plan:
@@ -431,24 +431,24 @@ def save_json(metrics: dict, fueling_form: dict | None, monday: date, training_p
 
 
 def main() -> None:
-    monday, sunday = _current_week_range()
-    print(f"Calendar week: {monday.isoformat()} – {sunday.isoformat()}")
+    start_date, end_date = _last_7_days_range()
+    print(f"Last 7 days: {start_date.isoformat()} – {end_date.isoformat()}")
     activities = load_data()
     rides = filter_activities(activities)
     training_plan = load_training_plan(date.today())
     if not rides:
         print("No qualifying rides found.")
         if training_plan:
-            save_json({}, None, monday, training_plan)
+            save_json({}, None, start_date, training_plan)
         sys.exit(0)
     athlete_metrics = load_metrics()
-    fueling_data = load_fueling(monday)
+    fueling_data = load_fueling(start_date)
     metrics = compute_metrics(rides)
     form = compute_form(athlete_metrics.get("ctl"), athlete_metrics.get("atl"))
     metrics.update(form)
     fueling_form = analyse_fueling_form(form["form_pct"], fueling_data, rides, training_plan) if fueling_data else None
     print_report(metrics, athlete_metrics, fueling_form, training_plan)
-    save_json(metrics, fueling_form, monday, training_plan)
+    save_json(metrics, fueling_form, start_date, training_plan)
 
 
 if __name__ == "__main__":

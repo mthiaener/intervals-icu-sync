@@ -1,4 +1,4 @@
-"""Fetch activities from intervals.icu for the current calendar week (Mon–today) and save to data/raw."""
+"""Fetch activities from intervals.icu for the last 14 days and save to data/raw."""
 
 import json
 import os
@@ -25,8 +25,8 @@ def main() -> None:
         sys.exit(1)
 
     today = date.today()
-    start_date = today - timedelta(days=today.weekday() + 7)  # Monday of previous week
     end_date = today
+    start_date = end_date - timedelta(days=13)  # Rolling window: last 14 days (inclusive)
 
     activities = get_activities(
         api_key=API_KEY,
@@ -50,4 +50,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main()   

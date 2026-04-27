@@ -106,7 +106,7 @@ intervals-icu-sync/
 │   ├── get_activities.py           # Fetch activities → data/raw/
 │   ├── get_metrics.py              # Fetch athlete metrics → data/processed/
 │   ├── get_training_plan.py        # Fetch active training plan → data/processed/
-│   ├── analyze_week.py             # Analyze current calendar week (Joe Friel)
+│   ├── analyze_week.py             # Analyze last 7 days (Joe Friel)
 │   ├── prepare_activities_for_coach.py  # Export simplified JSON for coach/ChatGPT
 │   ├── prepare_planned_workouts_for_coach.py  # Format planned workouts → data/processed/
 │   ├── fueling_analysis.py         # Analyze carbohydrate fueling quality
@@ -225,7 +225,7 @@ flowchart TD
     GTP --> TPLAN[(data/processed/\ntraining_plan_date.json)]
     PA --> COACH_A[(data/processed/\ncoach_input_monday.json)]
     FA --> FUELING[(data/processed/\nfueling_analysis_monday.json)]
-    AW --> SUMMARY[(data/processed/\nweek_summary_monday.json)]
+    AW --> SUMMARY[(data/processed/\nweek_summary_window_start.json)]
     FP --> FPLAN[(data/processed/\nfueling_plan_monday.json)]
     TPLAN --> PPW[prepare_planned_workouts_for_coach.py]
     PPW --> PLANNED[(data/processed/\nplanned_workouts_monday.json)]
@@ -261,7 +261,7 @@ to upload the plan to intervals.icu
 
 ### `get_activities.py`
 
-Fetches cycling activities from intervals.icu (Monday of previous week → today) and saves them to `data/raw/`.
+Fetches cycling activities from intervals.icu for the last 14 days (inclusive, today-13 to today) and saves them to `data/raw/`.
 
 ```bash
 python scripts/get_activities.py
@@ -285,7 +285,7 @@ Output: `data/processed/metrics_{date}.json`
 
 ### `analyze_week.py`
 
-Analyzes the current calendar week (Mon–Sun) using Joe Friel training principles. Classifies sessions (VO2max / Threshold / Endurance), computes aerobic decoupling, and prints a coaching interpretation.
+Analyzes the last 7 days (rolling window, today-6 to today) using Joe Friel training principles. Classifies sessions (VO2max / Threshold / Endurance), computes aerobic decoupling, and prints a coaching interpretation.
 
 Also computes **Form %** based on CTL (fitness) and ATL (fatigue):
 
@@ -298,7 +298,7 @@ Also computes **Form %** based on CTL (fitness) and ATL (fatigue):
 python scripts/analyze_week.py
 ```
 
-Output: console + `data/processed/week_summary_{monday}.json`
+Output: console + `data/processed/week_summary_{window_start}.json`
 
 ---
 
