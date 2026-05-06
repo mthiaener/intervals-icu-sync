@@ -29,7 +29,11 @@ import upload_plan as _upload_plan  # direct import – no subprocess overhead
 PROCESSED_DIR = _ROOT / "data" / "processed"
 PLANS_DIR = _ROOT / "data" / "plans"
 
-mcp = FastMCP("intervals-icu-coach")
+mcp = FastMCP(
+    "intervals-icu-coach",
+    host=os.environ.get("FASTMCP_HOST", "127.0.0.1"),
+    port=int(os.environ.get("FASTMCP_PORT", "8000")),
+)
 
 
 # ---------------------------------------------------------------------------

@@ -105,7 +105,8 @@ intervals-icu-sync/
 │   ├── input_schema.md             # JSON input schema description for the AI coach
 │   └── workouts.md                 # Example workouts by domain and dose level (with tags)
 ├── docs/
-│   ├── 2026-05 Next Level intervals-icu.pdf  # Webinar slides (German)
+│   ├── 2026-05 Next Level intervals-icu.pdf           # Webinar slides (German)
+│   ├── 2026-05 Next Level intervals-icu Step by Step.pdf  # Step-by-step setup guide (English)
 │   └── webinar_notes.md            # Webinar companion guide (German)
 ├── notebooks/
 │   └── week_summary.ipynb          # Interactive weekly training overview
@@ -121,6 +122,7 @@ intervals-icu-sync/
 │   └── plans/                      # Training plan JSON files
 ├── .env.example
 ├── requirements.txt
+├── start_mcp_server.ps1            # Start/stop the MCP server in SSE mode (Windows PowerShell)
 └── README.md
 ```
 
@@ -146,8 +148,8 @@ cp .env.example .env
 # Edit .env and set API_KEY and ATHLETE_ID
 ```
 
-- **API_KEY**: found in intervals.icu under **Profile → API**
-- **ATHLETE_ID**: your athlete ID, visible in the intervals.icu URL (e.g. `https://intervals.icu/athlete/i12345/...` → `i12345`)
+- **API_KEY**: found in intervals.icu under **Settings → Developer Settings**
+- **ATHLETE_ID**: your athlete ID, also under **Settings → Developer Settings**
 
 ## Data Flow
 
@@ -484,7 +486,7 @@ python scripts/prepare_week_for_coach.py
 
 In Claude, attach `prompts/system_prompt.md` (and optionally a discipline prompt from `prompts/`) and send your request, e.g.:
 
-> *"Analysiere meine Trainingswoche und erstelle einen Plan für die kommende Woche."*
+> *"Analyse my training week and create a plan for the coming week."*
 
 Claude will then:
 1. Call `get_coach_input` to load the pre-prepared data (instant file read).
@@ -494,48 +496,178 @@ Claude will then:
 
 > **Note:** `prepare_week_data` is also available as an MCP tool if the data files are missing, but it takes several minutes and may hit Claude Desktop's request timeout. Running `prepare_week_for_coach.py` manually beforehand is the recommended approach.
 
-### Use with ChatGPT (SSE mode, optional)
+### Use with ChatGPT (SSE mode)
 
-ChatGPT's MCP connector (currently in limited beta — not available to all users) requires an HTTP/SSE endpoint, not stdio. The server supports this via the `MCP_TRANSPORT` environment variable.
+ChatGPT MCP connectors require a publicly reachable HTTPS SSE endpoint.
 
-**Start in SSE mode (PowerShell):**
+This repository includes a helper script for starting the MCP server in SSE mode.
+
+---
+
+## 1. Start the MCP server
+
+Start the server locally using the provided PowerShell script:
+
+```powershell
+./start_mcp_server.ps1
+```
+
+The server will run locally on:
+
+```text
+http://127.0.0.1:8765/sse
+```
+
+---
+
+## 2. Expose the local server publicly with Cloudflare Tunnel
+
+ChatGPT cannot connect to `localhost` or `127.0.0.1`, so the MCP server must be exposed through a public HTTPS endpoint.
+
+### Install Cloudflare Tunnel
+
+Windows (PowerShell):
+
+```powershell
+winget install --id Cloudflare.cloudflared
+```
+
+Verify installation:
+
+```powershell
+cloudflared --version
+```
+
+---
+
+### Configure a Cloudflare Tunnel
+
+1. Create a free Cloudflare account:
+   https://dash.cloudflare.com/
+
+2. Add a domain to Cloudflare.
+
+3. Update your domain registrar to use the Cloudflare nameservers.
+
+4. Open:
+
+```text
+Cloudflare Dashboard → Networking → Tunnels
+```
+
+5. Create a new tunnel.
+
+6. Install the tunnel connector on your machine using the command provided by Cloudflare:
+
+```powershell
+cloudflared service install <token>
+```
+
+Replace `<token>` with the token shown in the Cloudflare Dashboard after creating the tunnel.
+
+7. Add a public hostname:
+
+| Setting | Value |
+|---|---|
+| Subdomain | `intervals-icu-mcp-local` |
+| Domain | `your-domain.com` |
+| Service URL | `http://127.0.0.1:8765` |
+
+Example resulting hostname:
+
+```text
+https://intervals-icu-mcp-local.example.com
+```
+
+The public SSE endpoint becomes:
+
+```text
+https://intervals-icu-mcp-local.example.com/sse
+```
+
+---
+
+## 3. Enable Developer Mode in ChatGPT
+
+MCP connectors are currently only available in selected ChatGPT plans and may still be in beta.
+
+### Enable MCP connectors
+
+1. Open ChatGPT
+2. Go to:
+
+```text
+Profile → Settings → Apps
+```
+
+3. Enable:
+
+```text
+Developer Mode
+```
+
+or:
+
+```text
+Custom MCP Connectors
+```
+
+(depending on your ChatGPT version)
+
+---
+
+## 4. Add the MCP connector in ChatGPT
+
+1. Open:
+
+```text
+Settings → Apps → Add MCP Connector
+```
+
+2. Configure the connector:
+
+| Setting | Value |
+|---|---|
+| Name | `Intervals.icu Coach` |
+| MCP Server URL | `https://intervals-icu-mcp-local.example.com/sse` |
+| Authentication | `None` |
+
+3. Save the connector.
+
+ChatGPT should now detect the MCP server and expose its tools automatically.
+
+---
+
+## Notes
+
+- ChatGPT requires an HTTPS-accessible SSE endpoint.
+- `localhost` and `127.0.0.1` are not reachable from ChatGPT directly.
+- Cloudflare Tunnel securely proxies HTTPS traffic to the local MCP server without exposing firewall ports publicly.
+- The server still supports `stdio` mode for Claude Desktop and other local MCP clients.
+
+---
+
+## Running the server manually
+
+### stdio mode (default)
+
+Used by Claude Desktop and local MCP clients:
+
+```bash
+python scripts/mcp_server.py
+```
+
+---
+
+### SSE mode (manual startup)
 
 ```powershell
 $env:MCP_TRANSPORT = "sse"
 $env:FASTMCP_HOST  = "127.0.0.1"
 $env:FASTMCP_PORT  = "8765"
+
 python scripts/mcp_server.py
 ```
-
-The server will print the SSE URL (e.g. `http://127.0.0.1:8765/sse`).
-
-**Make it publicly reachable** (ChatGPT needs a public URL — `localhost` is not enough):
-
-```bash
-ngrok http 8765
-# → https://<random-id>.ngrok-free.app
-```
-
-**Add the connector in ChatGPT:**
-
-1. *Settings → Features → Custom MCP Connectors → Add*
-2. Name: `Intervals.icu Coach`
-3. MCP Server URL: `https://<your-ngrok-url>/sse`
-4. Authentication: *None*
-
-> **Note:** The free ngrok plan generates a new URL on every restart. A paid ngrok plan or a self-hosted reverse proxy gives you a stable URL. Running the server publicly exposes your local machine, so only do this on a trusted network.
-
-### Running the server manually
-
-```bash
-# stdio mode (default, used by Claude Desktop)
-python scripts/mcp_server.py
-
-# SSE mode (for ChatGPT or other HTTP clients)
-# Windows PowerShell:
-$env:MCP_TRANSPORT = "sse"; python scripts/mcp_server.py
-```
-
 ---
 
 ## Notebook
@@ -567,14 +699,20 @@ jupyter lab notebooks/week_summary.ipynb
 
 > **Language:** German (Deutsch)
 
-Slides des Webinars *„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung“* (Mai 2026).
+Slides of webinar *„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung"* (Mai 2026).
 
 ---
+### `docs/2026-05 Next Level intervals-icu Step by Step.pdf`
 
+> **Language:** English
+
+Step-by-step setup guide accompanying the webinar. Walks through the full installation and configuration of the intervals.icu AI coach integration — from API key setup to MCP server and ChatGPT connection.
+
+---
 ### `docs/webinar_notes.md`
 
 > **Language:** German (Deutsch)
 
-Webinar companion guide for *„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung“*.
+Webinar companion guide for *„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung"*.
 
 Covers the core workflow: fetching data from intervals.icu, enriching it with the AI coach logic, generating a weekly training plan, and uploading it back to the calendar. Intended as a readable walkthrough for participants who want to understand or reproduce the setup without a live demo.

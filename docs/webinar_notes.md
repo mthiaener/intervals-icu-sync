@@ -4,7 +4,7 @@
 > **Language note:** This document is written in **German** (Deutsch).
 
 Diese Notizen ergänzen die Slides zum Webinar  
-**„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung“**.
+**„Next Level intervals.icu – Vom Datenchaos zur Coaching-Entscheidung"**.
 
 Ziel:  
 Dir den Einstieg erleichtern und den Workflow nachvollziehbar machen – auch ohne Live-Demo.
@@ -130,7 +130,7 @@ Typisches Muster:
 - hohe Decoupling-Werte  
 - gleichzeitig niedrige Carb-Aufnahme  
 
-→ falsch interpretiert als „fehlende Ausdauer“
+→ falsch interpretiert als „fehlende Ausdauer"
 
 Das System prüft deshalb immer:
 
@@ -188,7 +188,7 @@ Damit das System sinnvoll funktioniert:
 
 ## GenAI Integration
 
-Der „virtuelle Coach“ erhält:
+Der „virtuelle Coach" erhält:
 
 - strukturierte JSON-Daten  
 - System-Prompt  
@@ -258,7 +258,7 @@ Nur Ziel, Priorisierung und disziplinspezifische Regeln variieren.
 
 Nicht:
 
-- „ein weiterer AI-Coach“
+- „ein weiterer AI-Coach"
 
 Sondern:
 
@@ -280,6 +280,9 @@ Keine Blackbox.
 4. GenAI-Coach ausprobieren  
 5. Trainingsplan zurückspielen  
 
+Siehe auch Step-by-Step Anleitung (PDF):  [2026-05 Next Level intervals-icu Step by Step.pdf](2026-05%20Next%20Level%20intervals-icu%20Step%20by%20Step.pdf)  
+
+
 ---
 
 ## Feedback & Weiterentwicklung
@@ -298,6 +301,9 @@ Beiträge willkommen über GitHub Issues oder direkt per Nachricht.
 
 - Repository:  
   https://github.com/rbrands/intervals-icu-sync  
+
+- Step-by-Step Anleitung (PDF):  
+  [2026-05 Next Level intervals-icu Step by Step.pdf](2026-05%20Next%20Level%20intervals-icu%20Step%20by%20Step.pdf)  
 
 - Blog & Updates:  
   https://robert-brands.com/training  
