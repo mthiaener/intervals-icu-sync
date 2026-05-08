@@ -14,6 +14,14 @@ _ASCII_FALLBACKS = {
     '\u2026': '...',  # ellipsis …
     '\u00b0': 'deg',  # degree °
     '\u00d7': 'x',    # multiplication ×
+    # German umlauts
+    '\u00e4': 'ae',   # ä
+    '\u00f6': 'oe',   # ö
+    '\u00fc': 'ue',   # ü
+    '\u00c4': 'Ae',   # Ä
+    '\u00d6': 'Oe',   # Ö
+    '\u00dc': 'Ue',   # Ü
+    '\u00df': 'ss',   # ß
 }
 
 
@@ -87,8 +95,8 @@ def update_event(api_key: str, athlete_id: str, event_id: int, payload: dict) ->
     response = requests.put(
         url,
         auth=("API_KEY", api_key),
-        data=_json.dumps(payload, ensure_ascii=True).encode("ascii"),
-        headers={"Content-Type": "application/json"},
+        data=_json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json; charset=utf-8"},
         timeout=30,
     )
     response.raise_for_status()
@@ -204,8 +212,8 @@ def create_activity(
     response = requests.post(
         url,
         auth=("API_KEY", api_key),
-        data=_json.dumps(payload, ensure_ascii=True).encode("ascii"),
-        headers={"Content-Type": "application/json"},
+        data=_json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={"Content-Type": "application/json; charset=utf-8"},
         params={"upsertOnUid": "true" if uid is not None else "false"},
         timeout=30,
     )
