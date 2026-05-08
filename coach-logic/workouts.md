@@ -60,6 +60,13 @@ Sub-ranges:
 
 ---
 
+#### Race-Specific / Breakaway Intervals
+- Zone: Z6 (effort) + Z4 (consolidation)
+- Z6 Intensity: >120% FTP (anaerobic / above VO2max)
+- Z4 Intensity: 95–100% FTP (threshold consolidation)
+
+---
+
 ## Consistency Rule (CRITICAL)
 
 - All example workouts MUST follow these zone definitions
@@ -147,6 +154,33 @@ Sub-ranges:
 - 30–60 minutes easy endurance
 
 **Tag:** aerobic-treshold-low
+
+---
+
+## 4. Race-Specific: Breakaway Intervals
+
+**Goal:** Simulate and train the ability to attack and then sustain high pace — specific to road races and criteriums  
+**Structure:** Hard anaerobic effort (Z6) immediately followed by threshold consolidation (Z4)  
+**Recovery:** Full recovery between sets (not partial)
+
+### High Dose
+- 4 × (2 min Z6 + 3 min Z4), 5 min full recovery between sets
+
+**Tag:** race-specific-high
+
+---
+
+### Moderate Dose
+- 3 × (2 min Z6 + 3 min Z4), 5 min full recovery between sets
+
+**Tag:** race-specific-moderate
+
+---
+
+### Low Dose
+- 2 × (2 min Z6 + 3 min Z4), 5 min full recovery between sets
+
+**Tag:** race-specific-low
 
 ---
 
