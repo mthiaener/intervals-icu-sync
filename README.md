@@ -52,6 +52,7 @@ Before passing the prompt to the coach, copy the contents of the matching `disci
 | `discipline_climber.md` | Climber / FTP-focused athlete |
 | `discipline_criterium.md` | Criterium racer / W\' and repeatability focus |
 | `discipline_roadrace.md` | Road racer / aerobic durability and FTP focus |
+| `discipline_marathon.md` | Mountain marathon (L'Etape du Tour, Ötztaler) / ultra-long endurance focus |
 
 This keeps the base prompt stable while allowing the athlete profile to be swapped out per use.
 
@@ -95,6 +96,7 @@ intervals-icu-sync/
 │   ├── system_prompt.md            # System prompt for the AI coach (LLM instructions)
 │   ├── discipline_climber.md       # Athlete profile block: climber / FTP focus
 │   ├── discipline_criterium.md     # Athlete profile block: criterium / W' focus
+│   ├── discipline_marathon.md      # Athlete profile block: mountain marathon / ultra-long endurance
 │   └── discipline_roadrace.md      # Athlete profile block: road race / durability focus
 ├── coach-logic/
 │   ├── training_philosophy.md      # Underlying training principles (Joe Friel)
