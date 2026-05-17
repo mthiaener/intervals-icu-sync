@@ -1,0 +1,73 @@
+name: Swap Staging → Production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+# Never cancel a running swap mid-operation
+concurrency:
+  group: swap-production
+  cancel-in-progress: false
+
+jobs:
+  swap:
+    name: Swap staging → production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Health check on staging (pre-swap)
+        run: |
+          URL="https://${{ secrets.APP_NAME }}-staging.azurewebsites.net/health"
+          echo "Checking staging health: $URL"
+          for i in $(seq 1 6); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Staging health check passed (attempt $i)"
+              curl -s "$URL" | python3 -m json.tool
+              break
+            fi
+            if [ "$i" = "6" ]; then
+              echo "::error::Staging health check failed after 6 attempts (last HTTP $STATUS). Aborting swap."
+              exit 1
+            fi
+            echo "Attempt $i: HTTP $STATUS – waiting 10s..."
+            sleep 10
+          done
+
+      - name: Swap staging → production
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az webapp deployment slot swap \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --name "${{ secrets.APP_NAME }}" \
+              --slot staging \
+              --target-slot production
+
+      - name: Health check on production (post-swap)
+        run: |
+          URL="https://${{ secrets.APP_NAME }}.azurewebsites.net/health"
+          echo "Checking production health: $URL"
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Production health check passed (attempt $i)"
+              curl -s "$URL" | python3 -m json.tool
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $STATUS – waiting 15s..."
+            sleep 15
+          done
+          echo "::error::Production health check failed after 10 attempts. Consider swapping back manually."
+          exit 1

@@ -114,9 +114,9 @@ cd webservice
 .\Check-Deployment.ps1 -Deploy   # lint + what-if + deploy (with confirmation)
 ```
 
-> After the PR is merged, `infra.yml` becomes available in the GitHub Actions UI under
-> **Actions → Deploy Infrastructure → Run workflow** and can be triggered from there for
-> all future infrastructure changes.
+> After the PR is merged, `infra.yml` is available in the GitHub Actions UI under
+> **Actions → Deploy Infrastructure → Run workflow**. It must always be triggered
+> **manually** — it never runs automatically on push.
 
 ### 7. Deploy code (first time)
 
@@ -128,7 +128,7 @@ gh workflow run deploy.yml --ref feature/<your-branch>
 
 Or, once on `main`, via **Actions → Deploy Code → Run workflow** (target slot: `staging`).
 
-From the second PR onwards the workflows run automatically.
+From the second PR onwards `deploy.yml` and `preview.yml` run automatically; `infra.yml` and `swap.yml` are always manual.
 
 ### CI/CD Workflows
 
@@ -138,6 +138,7 @@ From the second PR onwards the workflows run automatically.
 | `preview.yml` | PR to `main` (infra changes) | What-If → PR comment |
 | `deploy.yml` | push to `main` | Zip-deploy code → **staging** slot |
 | `deploy.yml` | PR to `main` | Zip-deploy code → **dev** slot |
+| `swap.yml` | manual (`workflow_dispatch` only) | Health check staging → swap staging → production → health check production |
 
 Slot URLs follow the pattern `https://<appName>-<slot>.azurewebsites.net`.
 
