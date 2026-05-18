@@ -164,6 +164,11 @@ class AuthHeaderMiddleware:
     async def __call__(self, scope, receive, send) -> None:
         if scope["type"] == "http":
             path = scope.get("path", "")
+            # Root path – always-on ping from Azure App Service hits "/";
+            # redirect to /health so it gets a 200 instead of a 404.
+            if path == "/":
+                await self._handle_health(scope, receive, send)
+                return
             # Health endpoints (also handles /sse/health and /mcp/health for MCP Inspector probe)
             if path in ("/health", "/sse/health", "/mcp/health"):
                 await self._handle_health(scope, receive, send)
