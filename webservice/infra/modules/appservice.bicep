@@ -10,6 +10,9 @@ param appServicePlanName string
 @description('Name of the existing Application Insights instance. Leave empty to skip.')
 param appInsightsName string = ''
 
+@description('Optional custom domain (e.g. intervals-mcp.training-architect.com). Leave empty to use only the azurewebsites.net hostname.')
+param customDomain string = ''
+
 // Reference the existing App Service Plan – it is not modified.
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' existing = {
   name: appServicePlanName
@@ -77,8 +80,8 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
       appSettings: union(commonAppSettings, appInsightsSettings, [
         {
           name: 'FASTMCP_ALLOWED_HOST'
-          // Computed from the app name – no manual update needed after deploy.
-          value: '${appName}.azurewebsites.net'
+          // Comma-separated: azurewebsites.net hostname + optional custom domain.
+          value: customDomain != '' ? '${appName}.azurewebsites.net,${customDomain}' : '${appName}.azurewebsites.net'
         }
       ])
     }

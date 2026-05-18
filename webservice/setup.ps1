@@ -48,6 +48,7 @@ if ($GitHub -or $All) {
     gh secret set APP_NAME                 --body $config.AppName
     gh secret set APP_SERVICE_PLAN_NAME    --body $config.AppServicePlanName
     gh secret set APP_INSIGHTS_NAME        --body $config.AppInsightsName
+    gh secret set APP_CUSTOM_DOMAIN        --body $config.CustomDomain
 
     Write-Host "GitHub Secrets set." -ForegroundColor Green
 }
@@ -68,6 +69,7 @@ param appName            = '$($config.AppName)'
 param location           = '$($config.Location)'
 param appServicePlanName = '$($config.AppServicePlanName)'
 param appInsightsName    = '$($config.AppInsightsName)'
+param customDomain       = '$($config.CustomDomain)'
 "@
 
     $outputPath = Join-Path $PSScriptRoot "infra/main.local.bicepparam"

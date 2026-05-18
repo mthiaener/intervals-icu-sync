@@ -101,10 +101,15 @@ _SCHEMA_VERSION = (
 )
 
 # allowed_hosts: always include localhost variants (with and without port) plus
-# the App Service hostname set via FASTMCP_ALLOWED_HOST (e.g. "myapp.azurewebsites.net").
+# any hostnames listed in FASTMCP_ALLOWED_HOST (comma-separated, e.g.
+# "myapp.azurewebsites.net,intervals-mcp.training-architect.com").
 # The Host header sent by clients includes the port (e.g. "localhost:8000"), so
 # both forms must be listed.
-_extra_host = os.environ.get("FASTMCP_ALLOWED_HOST", "")
+_extra_hosts: list[str] = [
+    h.strip()
+    for h in os.environ.get("FASTMCP_ALLOWED_HOST", "").split(",")
+    if h.strip()
+]
 _port = int(os.environ.get("FASTMCP_PORT", "8000"))
 _allowed_hosts: list[str] = [
     "127.0.0.1",
@@ -112,16 +117,15 @@ _allowed_hosts: list[str] = [
     f"127.0.0.1:{_port}",
     f"localhost:{_port}",
 ]
-if _extra_host:
-    _allowed_hosts.append(_extra_host)
+_allowed_hosts.extend(_extra_hosts)
 
 # allowed_origins: localhost:* covers any port (MCP Inspector, VS Code, etc.).
 # Localhost origins can only come from the local machine, so this is safe in
 # all environments. The wildcard "http://localhost:*" is supported by the SDK's
 # _validate_origin() method.
 _allowed_origins: list[str] = ["http://localhost:*", "https://localhost:*"]
-if _extra_host:
-    _allowed_origins.append(f"https://{_extra_host}")
+for _h in _extra_hosts:
+    _allowed_origins.append(f"https://{_h}")
 
 mcp = FastMCP(
     "intervals-icu-coach",

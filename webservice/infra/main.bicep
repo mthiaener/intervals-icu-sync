@@ -12,6 +12,9 @@ param appServicePlanName string
 @description('Name of the existing Application Insights instance in this resource group. Leave empty to skip AI instrumentation.')
 param appInsightsName string = ''
 
+@description('Optional custom domain for the production slot (e.g. intervals-mcp.training-architect.com). Leave empty to use only the azurewebsites.net hostname.')
+param customDomain string = ''
+
 module appservice 'modules/appservice.bicep' = {
   name: 'deploy-${appName}'
   params: {
@@ -19,6 +22,7 @@ module appservice 'modules/appservice.bicep' = {
     location: location
     appServicePlanName: appServicePlanName
     appInsightsName: appInsightsName
+    customDomain: customDomain
   }
 }
 

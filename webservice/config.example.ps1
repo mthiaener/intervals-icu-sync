@@ -33,4 +33,8 @@ $config = @{
 
     # Name of the existing Application Insights instance (from brands-advisory-central-infra)
     AppInsightsName      = "__APP_INSIGHTS_NAME__"
+
+    # Optional custom domain for the production slot.
+    # Leave empty string to use only the azurewebsites.net hostname.
+    CustomDomain         = "intervals-mcp...."
 }
