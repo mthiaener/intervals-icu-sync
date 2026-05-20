@@ -330,6 +330,8 @@ class AuthHeaderMiddleware:
 <body>
   <h1>intervals-icu-sync</h1>
   <p class="sub">MCP Server — cycling training data from <a href="https://intervals.icu">intervals.icu</a></p>
+  <p class="sub">See <a href="https://github.com/rbrands/intervals-icu-sync">GitHub repository intervals-icu-sync</a> for details including step-by-step guides how 
+    to set up and use the MCP server in popular GenAI platforms.</p>
   <h2>Endpoints</h2>
   <table>
     <tr><th>URL</th><th>Protocol</th></tr>
