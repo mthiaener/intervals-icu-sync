@@ -86,15 +86,15 @@ def load_fueling(monday: date) -> dict:
     return json.loads(path.read_text())
 
 
-def _last_7_days_range() -> tuple[date, date]:
+def _last_6_weeks_range() -> tuple[date, date]:
     today = date.today()
     end_date = today
-    start_date = end_date - timedelta(days=6)
+    start_date = end_date - timedelta(weeks=6)
     return start_date, end_date
 
 
 def filter_activities(activities: list) -> list:
-    start_date, end_date = _last_7_days_range()
+    start_date, end_date = _last_6_weeks_range()
     result = []
     for a in activities:
         if (
@@ -431,8 +431,8 @@ def save_json(metrics: dict, fueling_form: dict | None, window_start: date, trai
 
 
 def main() -> None:
-    start_date, end_date = _last_7_days_range()
-    print(f"Last 7 days: {start_date.isoformat()} – {end_date.isoformat()}")
+    start_date, end_date = _last_6_weeks_range()
+    print(f"Last 6 weeks: {start_date.isoformat()} – {end_date.isoformat()}")
     activities = load_data()
     rides = filter_activities(activities)
     training_plan = load_training_plan(date.today())
