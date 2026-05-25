@@ -9,6 +9,30 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 - Placeholder for upcoming changes.
 
+## [0.3.3] - 2026-05-25
+
+### Added
+
+- `docs/gen_ai_setup_step_by_step.md`: new step-by-step guide for setting up GenAI tools as coach — covers coach logic preparation, MCP server setup (Claude.ai, ChatGPT, Microsoft Copilot Studio), and the typical weekly workflow with example prompts.
+- Download link for `coach-logic/` directory as ZIP via download-directory.github.io added to the setup guide.
+
+### Changed
+
+- `README.md`: replaced MCP Server section with a structured "How to Use" section describing three usage options (Bits-and-Bytes, Managed MCP Server, Integrated Web App — coming soon).
+- `README.md`: introduction updated to reflect that the project includes a publicly hosted MCP server, ready-to-use system prompts, and a coaching logic library.
+- `prompts/system_prompt.md`: added "Date Handling (CRITICAL)" section instructing the model to derive all dates exclusively from `current_date` and `week_starting` in the input JSON, preventing date confusion in ChatGPT and Copilot.
+
+## [0.3.2] - 2026-05-23
+
+### Added
+
+- Weather data section in coach input JSON (`prepare_activities_for_coach.py`): each activity now contains a `weather` object with `average_weather_temp`, `average_feels_like`, and `max_rain` from the intervals.icu weather service; `null` for indoor/GPS-less rides.
+- Weather fields documented in `coach-logic/input_schema.md`.
+
+### Improved
+
+- MCP server authentication hardened: improved credential handling in the web service.
+
 ## [0.3.1] - 2026-05-20
 
 ### Added

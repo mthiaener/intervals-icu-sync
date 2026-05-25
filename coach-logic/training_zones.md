@@ -1,9 +1,11 @@
 # Training Zones
 
-This document defines the athlete’s training zones and how they are used by the AI coach.
+This document defines the athlete's training zones and how they are used by the AI coach.
 
 Zones are primarily based on **% of FTP (Functional Threshold Power)**.  
 Heart rate and RPE are secondary indicators.
+
+RPE = Rate of Perceived Exertion
 
 ---
 
