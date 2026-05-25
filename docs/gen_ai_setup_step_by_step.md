@@ -208,6 +208,7 @@ The more consistently you log these, the better the coaching output.
 
 **Example prompt – weekly assessment via MCP**
 
+> Today is {{TODAY}}, current week started {{WEEK_STARTING}}.
 > Please use the `prepare_week_data` tool to fetch my training data for this week, then give me a coaching assessment covering:
 >
 > - **Training load and quality** — total load, session types (VO2max / Threshold / Endurance), aerobic decoupling
